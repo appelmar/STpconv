@@ -62,3 +62,9 @@ This should give a link to access JupyterLab in your browser und run the provide
 ## Data Format and Naming Conventions
 
 Input and output data blocks are stored as GeoTIFF files, where bands represent time. Notice the following file naming conventions: GeoTIFF files starting with X represent input measurements for training, where artificial gaps have been added. Files starting with Y represent true measurements without artificially added gaps (but still containing gaps in many cases). Binary masks of input data where all pixels with valid measurements are 1 and others 0 are stored in files whose name starts with MASK, while files starting with VALMASK contain a binary mask where only pixels that are available in Y but not in X are 1. The latter is used for validation on artificially removed pixels only. Numbers in filenames encode spatial and temporal block indexes. 
+
+## Original data
+
+A larger training and validation dataset has been published at https://zenodo.org/record/6838652#.YtE92dJBwUE.
+
+
