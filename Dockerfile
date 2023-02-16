@@ -2,7 +2,7 @@ FROM jupyter/tensorflow-notebook:latest
 
 USER root
 RUN apt update && apt install -y --no-install-recommends software-properties-common
-RUN add-apt-repository ppa:ubuntugis/ppa && apt update && apt install -y --no-install-recommends libgdal-dev gdal-bin g++ graphviz
+RUN apt install -y --no-install-recommends libgdal-dev gdal-bin g++ graphviz
 USER ${NB_UID}
 
 COPY --chown=${NB_UID}:${NB_GID} requirements.txt /tmp/

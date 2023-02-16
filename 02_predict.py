@@ -9,8 +9,8 @@ from skimage import io as skio
 from skimage import util as skutil
 
 # Import modules from lib/ directory
-from lib.pconv3d_layer import PConv3D
-from lib.pconv3d_model import PConv3DUnet
+from lib.STpconvLayer import STpconv
+from lib.STpconvUnet import STpconvUnet
 from lib.DataGenerator import DataGenerator
 
 ## uncomment for computation time measurements
@@ -18,14 +18,10 @@ from lib.DataGenerator import DataGenerator
 # tf.config.threading.set_inter_op_parallelism_threads(1)
 
 
-
 print("Using TensorFlow version", tf.__version__)
 
 DATA_PATH_IN = "data/validation"
 DATA_PATH_OUT = "data/validation/predictions"
-
-TRANSFORM = None
-print("TRANSFORM: " + str(TRANSFORM))
 
 if os.path.exists(DATA_PATH_OUT):
     if len(os.listdir(DATA_PATH_OUT)) > 0:
@@ -33,7 +29,10 @@ if os.path.exists(DATA_PATH_OUT):
 else:
     os.makedirs(DATA_PATH_OUT)
 
-model = PConv3DUnet.load("models/S5P_CO_model", weights_name = "models/S5P_CO_model.h5")
+model = STpconvUnet.load("models/S5P_CO_model", weights_name = "models/S5P_CO_model.h5")
+
+model = STpconvUnet.load("model_architecture", weights_name = "out/epoch_50.h5")
+
 
 
 def predict_single(img_path, mask_path, out_path):
@@ -42,13 +41,6 @@ def predict_single(img_path, mask_path, out_path):
     temp = np.expand_dims(temp, axis=4) # append "channel" dimension
     temp[temp<0] = 0 
     X = temp 
-    if not TRANSFORM is None: 
-        if TRANSFORM == "sqrt":
-            X = np.sqrt(X)
-        elif TRANSFORM == "log":
-            X = np.log(X + 0.0001) - np.log(0.0001)
-        else:
-            print("WARNING: invalid transformation string '" + str(TRANSFORM) + "' will be ignored")
  
     temp = skio.imread(mask_path)
     temp = np.expand_dims(temp, axis=0) # append "sample" dimension
@@ -56,14 +48,6 @@ def predict_single(img_path, mask_path, out_path):
     mask = temp 
     
     pred = model.predict([X,mask, mask]) # 2nd mask is not needed here, so we simply use the same mask
-    if not TRANSFORM is None: 
-        if TRANSFORM == "sqrt":
-            pred = np.square(pred)
-        elif TRANSFORM == "log":
-            pred = np.exp(pred) * 0.0001 - 0.0001
-        else:
-            print("WARNING: invalid transformation string '" + str(TRANSFORM) + "' will be ignored")
-   
     
     # create output file and copy spatial reference from input
     img = rio.open(img_path)
